@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-warm-ivory: #F8F1EB;
+    --color-dusty-rose: #D9A6A7;
+    --color-muted-burgundy: #9D626B;
+    --color-champagne-beige: #E9D7C5;
+    --color-deep-espresso: #302526;
+  }
+
+  body {
+    background-color: #F8F1EB;
+    color: #302526;
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, .font-serif {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+  }
+
+  .font-handwriting {
+    font-family: 'Caveat', cursive;
+  }
+}
+
+/* Custom romantic paper texture & subtle glow styling */
+.paper-card {
+  background: rgba(248, 241, 235, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(217, 166, 167, 0.25);
+  box-shadow: 0 10px 30px -10px rgba(48, 37, 38, 0.05);
+}
+
+.polaroid-card {
+  background: #FFFFFF;
+  box-shadow: 0 12px 28px -6px rgba(48, 37, 38, 0.12), 0 0 1px rgba(48, 37, 38, 0.05);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+}
+
+.polaroid-card:hover {
+  transform: translateY(-6px) rotate(0deg) !important;
+  box-shadow: 0 20px 35px -8px rgba(157, 98, 107, 0.18);
+}
+
+/* Wax seal button effect */
+.wax-seal {
+  background: radial-gradient(circle at 30% 30%, #b87781, #864d55);
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.3), 0 4px 12px rgba(157, 98, 107, 0.35);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #F8F1EB;
+}
+::-webkit-scrollbar-thumb {
+  background: #E9D7C5;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #D9A6A7;
+}
