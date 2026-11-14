@@ -1,14 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DiaryEntry } from '../../lib/types';
-import { Lock, Unlock, Plus, Calendar, Smile, Heart, Feather, Trash2, BookOpen } from 'lucide-react';
+import { Lock, Unlock, Plus, Calendar, Smile, Heart, Feather, Trash2, BookOpen, CloudCheck } from 'lucide-react';
 import { formatDate } from '../../lib/utils';
+import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 
 interface DiarySectionProps {
   isAuthenticated: boolean;
   onOpenAuthModal: () => void;
   onLockDiary: () => void;
 }
+
+const DEFAULT_ENTRY: DiaryEntry = {
+  id: 'default-1',
+  title: 'A Little Thought For Today',
+  date: new Date().toISOString(),
+  content: 'Welcome to your private diary, Vijeta. Here, you can write anything you wish—your triumphs, silly moments, quiet dreams, or little notes to yourself. It will stay safe and protected here forever.',
+  mood: 'loved',
+};
 
 export const DiarySection: React.FC<DiarySectionProps> = ({
   isAuthenticated,
@@ -19,34 +28,49 @@ export const DiarySection: React.FC<DiarySectionProps> = ({
     try {
       const saved = localStorage.getItem('md_diary_entries');
       if (saved) return JSON.parse(saved);
-    } catch {
-      // fallback
-    }
-    return [
-      {
-        id: 'default-1',
-        title: 'A Little Thought For Today',
-        date: new Date().toISOString(),
-        content: 'Welcome to your private diary, Vijeta. Here, you can write anything you wish—your triumphs, silly moments, quiet dreams, or little notes to yourself. It will stay safe and protected here forever.',
-        mood: 'loved',
-      },
-    ];
+    } catch {}
+    return [DEFAULT_ENTRY];
   });
 
   const [isCreating, setIsCreating] = useState(false);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [mood, setMood] = useState<'happy' | 'loved' | 'peaceful' | 'reflective' | 'dreamy'>('loved');
+  const [loading, setLoading] = useState(false);
+
+  const loadCloudEntries = async () => {
+    if (isSupabaseConfigured && supabase) {
+      try {
+        const { data, error } = await supabase
+          .from('diary_entries')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (!error && data && data.length > 0) {
+          const mapped: DiaryEntry[] = data.map((d) => ({
+            id: d.id,
+            title: d.title,
+            content: d.content,
+            mood: d.mood,
+            date: d.entry_date || d.created_at,
+          }));
+          setEntries(mapped);
+          localStorage.setItem('md_diary_entries', JSON.stringify(mapped));
+          return;
+        }
+      } catch (err) {
+        console.warn('Could not fetch cloud diary entries:', err);
+      }
+    }
+  };
 
   useEffect(() => {
-    try {
-      localStorage.setItem('md_diary_entries', JSON.stringify(entries));
-    } catch (e) {
-      console.warn("Storage error", e);
+    if (isAuthenticated) {
+      loadCloudEntries();
     }
-  }, [entries]);
+  }, [isAuthenticated]);
 
-  const handleCreateEntry = (e: React.FormEvent) => {
+  const handleCreateEntry = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !content.trim()) return;
 
@@ -58,15 +82,48 @@ export const DiarySection: React.FC<DiarySectionProps> = ({
       mood,
     };
 
-    setEntries([newEntry, ...entries]);
+    if (isSupabaseConfigured && supabase) {
+      try {
+        const { data, error } = await supabase
+          .from('diary_entries')
+          .insert({
+            title: newEntry.title,
+            content: newEntry.content,
+            mood: newEntry.mood,
+            entry_date: newEntry.date,
+          })
+          .select()
+          .single();
+
+        if (!error && data) {
+          newEntry.id = data.id;
+        }
+      } catch (err) {
+        console.warn('Supabase diary entry insert error:', err);
+      }
+    }
+
+    const updated = [newEntry, ...entries];
+    setEntries(updated);
+    localStorage.setItem('md_diary_entries', JSON.stringify(updated));
     setTitle('');
     setContent('');
     setIsCreating(false);
   };
 
-  const handleDeleteEntry = (id: string) => {
+  const handleDeleteEntry = async (id: string) => {
     if (confirm("Are you sure you want to remove this memory note?")) {
-      setEntries(entries.filter((entry) => entry.id !== id));
+      if (isSupabaseConfigured && supabase) {
+        try {
+          await supabase.from('diary_entries').delete().eq('id', id);
+        } catch (err) {
+          console.warn('Supabase diary entry delete error:', err);
+        }
+      }
+
+      const updated = entries.filter((entry) => entry.id !== id);
+      setEntries(updated);
+      localStorage.setItem('md_diary_entries', JSON.stringify(updated));
     }
   };
 

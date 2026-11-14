@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Heart, Sparkles, BookOpen, MessageSquare, Image as ImageIcon, Gift, Star, SlidersHorizontal } from 'lucide-react';
+import { Menu, X, Heart, Sparkles, BookOpen, MessageSquare, Image as ImageIcon, Gift, Star, SlidersHorizontal, LogOut } from 'lucide-react';
 
 interface NavbarProps {
   onOpenAuthModal?: () => void;
   onOpenDashboard?: () => void;
+  onLogout?: () => void;
   isAuthenticated?: boolean;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onOpenAuthModal, onOpenDashboard, isAuthenticated }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onOpenAuthModal, onOpenDashboard, onLogout, isAuthenticated }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -54,7 +55,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuthModal, onOpenDashboard
         </a>
 
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-7">
+        <nav className="hidden lg:flex items-center gap-6">
           {navLinks.map((link) => (
             <a
               key={link.name}
@@ -69,20 +70,21 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuthModal, onOpenDashboard
           {/* Dashboard Button */}
           <button
             onClick={onOpenDashboard}
-            className="flex items-center gap-1.5 text-xs font-sans px-3.5 py-1.5 rounded-full bg-muted-burgundy text-warm-ivory hover:bg-burgundy-dark transition-all shadow-2xs"
+            className="flex items-center gap-1.5 text-xs font-sans px-3.5 py-1.5 rounded-full bg-champagne-beige/60 text-deep-espresso hover:bg-champagne-beige transition-all border border-dusty-rose/40"
             title="Open Content Management Dashboard"
           >
-            <SlidersHorizontal className="w-3.5 h-3.5" />
+            <SlidersHorizontal className="w-3.5 h-3.5 text-muted-burgundy" />
             <span>Manage Content</span>
           </button>
 
-          {/* Diary Status Indicator */}
+          {/* Logout / Lock Button */}
           <button
-            onClick={onOpenAuthModal}
-            className="flex items-center gap-1.5 text-xs font-sans px-3 py-1.5 rounded-full border border-dusty-rose/40 bg-white/50 text-muted-burgundy hover:bg-white hover:border-muted-burgundy transition-all"
+            onClick={onLogout}
+            className="flex items-center gap-1.5 text-xs font-sans px-3.5 py-1.5 rounded-full bg-muted-burgundy text-warm-ivory hover:bg-burgundy-dark transition-all shadow-xs"
+            title="Lock sanctuary and log out"
           >
-            <Sparkles className="w-3.5 h-3.5 text-muted-burgundy" />
-            <span>{isAuthenticated ? 'Unlocked' : 'Private Diary'}</span>
+            <LogOut className="w-3.5 h-3.5" />
+            <span>Lock Sanctuary</span>
           </button>
         </nav>
 
@@ -94,6 +96,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuthModal, onOpenDashboard
             title="Manage Content"
           >
             <SlidersHorizontal className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={onLogout}
+            className="p-2 text-xs font-sans rounded-full bg-muted-burgundy text-warm-ivory flex items-center gap-1"
+            title="Lock Sanctuary"
+          >
+            <LogOut className="w-4 h-4" />
           </button>
 
           <button
@@ -137,21 +147,21 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuthModal, onOpenDashboard
                     setMobileMenuOpen(false);
                     onOpenDashboard?.();
                   }}
-                  className="flex items-center justify-center gap-2 text-xs font-sans px-4 py-2.5 rounded-full bg-muted-burgundy text-warm-ivory"
+                  className="flex items-center justify-center gap-2 text-xs font-sans px-4 py-2.5 rounded-full bg-champagne-beige/60 text-deep-espresso border border-dusty-rose/30"
                 >
-                  <SlidersHorizontal className="w-4 h-4" />
+                  <SlidersHorizontal className="w-4 h-4 text-muted-burgundy" />
                   <span>Manage Website Content</span>
                 </button>
 
                 <button
                   onClick={() => {
                     setMobileMenuOpen(false);
-                    onOpenAuthModal?.();
+                    onLogout?.();
                   }}
-                  className="flex items-center justify-center gap-2 text-xs font-sans px-4 py-2.5 rounded-full border border-dusty-rose/40 bg-white/60 text-muted-burgundy"
+                  className="flex items-center justify-center gap-2 text-xs font-sans px-4 py-2.5 rounded-full bg-muted-burgundy text-warm-ivory"
                 >
-                  <Sparkles className="w-4 h-4" />
-                  <span>{isAuthenticated ? "Diary Unlocked" : 'Unlock Private Diary'}</span>
+                  <LogOut className="w-4 h-4" />
+                  <span>Lock Sanctuary & Log Out</span>
                 </button>
               </div>
             </div>

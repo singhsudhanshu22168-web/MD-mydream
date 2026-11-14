@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { INITIAL_QUESTIONS } from '../../data/questionsData';
+import { QuestionItem } from '../../lib/types';
 import { CheckCircle2, Heart, Sparkles, Send } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 
 export const QuestionsSection: React.FC = () => {
+  const [questions, setQuestions] = useState<QuestionItem[]>(INITIAL_QUESTIONS);
   const [answers, setAnswers] = useState<Record<string, string>>(() => {
     try {
       const saved = localStorage.getItem('md_answers');
@@ -15,6 +17,65 @@ export const QuestionsSection: React.FC = () => {
   });
 
   const [savedNotification, setSavedNotification] = useState<string | null>(null);
+
+  // Fetch questions and answers from Supabase
+  useEffect(() => {
+    const fetchQuestionsAndAnswers = async () => {
+      if (isSupabaseConfigured && supabase) {
+        try {
+          const { data: qData, error: qError } = await supabase
+            .from('questions')
+            .select('*')
+            .order('order_index', { ascending: true });
+
+          if (!qError && qData && qData.length > 0) {
+            setQuestions(
+              qData.map((q) => ({
+                id: q.id,
+                type: q.type,
+                prompt: q.prompt,
+                subtitle: q.subtitle,
+                options: q.options,
+                placeholder: q.placeholder,
+              }))
+            );
+          }
+
+          const { data: aData, error: aError } = await supabase
+            .from('answers')
+            .select('*');
+
+          if (!aError && aData && aData.length > 0) {
+            const cloudAnswers: Record<string, string> = {};
+            aData.forEach((a) => {
+              cloudAnswers[a.question_id] = a.answer_text;
+            });
+            setAnswers((prev) => ({ ...prev, ...cloudAnswers }));
+          }
+        } catch (e) {
+          console.warn('Could not sync questions with Supabase:', e);
+        }
+      }
+    };
+
+    fetchQuestionsAndAnswers();
+  }, []);
+
+  const saveAnswerToBackend = async (id: string, text: string) => {
+    if (isSupabaseConfigured && supabase) {
+      try {
+        await supabase
+          .from('answers')
+          .upsert({
+            question_id: id,
+            answer_text: text,
+            updated_at: new Date().toISOString(),
+          }, { onConflict: 'question_id' });
+      } catch (e) {
+        console.warn('Supabase answer upsert error:', e);
+      }
+    }
+  };
 
   const handleTextChange = (id: string, value: string) => {
     const updated = { ...answers, [id]: value };
@@ -27,10 +88,12 @@ export const QuestionsSection: React.FC = () => {
     setAnswers(updated);
     localStorage.setItem('md_answers', JSON.stringify(updated));
     triggerSavedFeedback(id);
+    saveAnswerToBackend(id, choice);
   };
 
   const triggerSavedFeedback = (id: string) => {
     setSavedNotification(id);
+    saveAnswerToBackend(id, answers[id] || '');
     setTimeout(() => {
       setSavedNotification((current) => (current === id ? null : current));
     }, 2500);
@@ -56,7 +119,7 @@ export const QuestionsSection: React.FC = () => {
 
         {/* Questions Cards */}
         <div className="space-y-8">
-          {INITIAL_QUESTIONS.map((q, index) => {
+          {questions.map((q, index) => {
             const currentAnswer = answers[q.id] || '';
             const isSaved = savedNotification === q.id;
 
@@ -143,7 +206,7 @@ export const QuestionsSection: React.FC = () => {
                     />
                     <div className="flex items-center justify-between mt-2">
                       <span className="text-[11px] font-sans text-deep-espresso/40">
-                        Autosaves as you type
+                        Autosaves to sanctuary
                       </span>
                       <button
                         onClick={() => triggerSavedFeedback(q.id)}

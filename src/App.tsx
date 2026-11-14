@@ -12,46 +12,116 @@ import { AudioPlayer } from './components/common/AudioPlayer';
 import { FloatingElements } from './components/common/FloatingElements';
 import { DiaryAuthModal } from './components/auth/DiaryAuthModal';
 import { AdminDashboardModal } from './components/dashboard/AdminDashboardModal';
+import { LoginPage } from './components/auth/LoginPage';
+import { supabase, isSupabaseConfigured } from './lib/supabase';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Sparkles, Heart } from 'lucide-react';
 
 export const App: React.FC = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [userEmail, setUserEmail] = useState<string | undefined>();
+  const [showWelcomeToast, setShowWelcomeToast] = useState(false);
+
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isDashboardOpen, setIsDashboardOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
+  // Check initial authentication and listen to Supabase Auth state changes
   useEffect(() => {
-    // Check initial authentication state from session / local storage
-    const authState = localStorage.getItem('md_diary_auth');
-    if (authState === 'true') {
-      setIsAuthenticated(true);
+    const checkSession = async () => {
+      try {
+        if (isSupabaseConfigured && supabase) {
+          const { data } = await supabase.auth.getSession();
+          if (data.session) {
+            setIsAuthenticated(true);
+            setUserEmail(data.session.user.email);
+          } else {
+            // Check session storage fallback
+            const localSession = sessionStorage.getItem('md_session_auth');
+            if (localSession === 'true') {
+              setIsAuthenticated(true);
+            }
+          }
+        } else {
+          const localSession = sessionStorage.getItem('md_session_auth');
+          if (localSession === 'true') {
+            setIsAuthenticated(true);
+          }
+        }
+      } catch (err) {
+        console.warn('Session check error:', err);
+      } finally {
+        setIsCheckingAuth(false);
+      }
+    };
+
+    checkSession();
+
+    if (isSupabaseConfigured && supabase) {
+      const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+        if (session) {
+          setIsAuthenticated(true);
+          setUserEmail(session.user.email);
+        } else {
+          setIsAuthenticated(false);
+          setUserEmail(undefined);
+          sessionStorage.removeItem('md_session_auth');
+        }
+      });
+
+      return () => {
+        authListener.subscription.unsubscribe();
+      };
     }
   }, []);
 
-  const handleAuthSuccess = () => {
+  const handleLoginSuccess = (email?: string) => {
     setIsAuthenticated(true);
-    const diaryEl = document.getElementById('diary');
-    if (diaryEl) {
-      diaryEl.scrollIntoView({ behavior: 'smooth' });
-    }
+    setUserEmail(email);
+    setShowWelcomeToast(true);
+    setTimeout(() => {
+      setShowWelcomeToast(false);
+    }, 4500);
   };
 
-  const handleLockDiary = () => {
+  const handleLogout = async () => {
+    try {
+      if (isSupabaseConfigured && supabase) {
+        await supabase.auth.signOut();
+      }
+    } catch (e) {
+      console.warn('Sign out error:', e);
+    }
+    sessionStorage.removeItem('md_session_auth');
     localStorage.removeItem('md_diary_auth');
     setIsAuthenticated(false);
-  };
-
-  const handleOpenDashboard = () => {
-    if (!isAuthenticated) {
-      setIsAuthModalOpen(true);
-    } else {
-      setIsDashboardOpen(true);
-    }
+    setUserEmail(undefined);
+    setIsDashboardOpen(false);
   };
 
   const handleDataRefreshed = () => {
     setRefreshTrigger((prev) => prev + 1);
   };
 
+  // 1. Initial Loading Screen
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen bg-warm-ivory flex flex-col items-center justify-center">
+        <div className="w-16 h-16 rounded-full bg-champagne-beige/60 border border-muted-burgundy/30 flex items-center justify-center animate-pulse mb-4">
+          <span className="font-serif font-bold text-xl text-muted-burgundy">MD</span>
+        </div>
+        <p className="font-serif text-lg text-deep-espresso/70">Opening Sanctuary...</p>
+      </div>
+    );
+  }
+
+  // 2. Protected Gateway: If not authenticated, render ONLY the Login Page
+  if (!isAuthenticated) {
+    return <LoginPage onLoginSuccess={handleLoginSuccess} />;
+  }
+
+  // 3. Authenticated: Render Full Website
   return (
     <div className="relative min-h-screen bg-warm-ivory text-deep-espresso flex flex-col font-sans selection:bg-dusty-rose/30">
       {/* Ambient background particles & glows */}
@@ -60,10 +130,30 @@ export const App: React.FC = () => {
       {/* Persistent floating audio toggle */}
       <AudioPlayer />
 
+      {/* Welcome Toast Animation */}
+      <AnimatePresence>
+        {showWelcomeToast && (
+          <motion.div
+            initial={{ opacity: 0, y: -40, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: -30, x: '-50%' }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+            className="fixed top-20 left-1/2 z-50 px-6 py-3 rounded-full bg-warm-ivory/95 border border-dusty-rose/50 shadow-2xl backdrop-blur-md flex items-center gap-2.5 text-deep-espresso"
+          >
+            <Sparkles className="w-4 h-4 text-muted-burgundy" />
+            <span className="font-serif text-lg text-deep-espresso font-medium">
+              Welcome back, MD ♡
+            </span>
+            <Heart className="w-3.5 h-3.5 fill-muted-burgundy text-muted-burgundy" />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Global Navigation */}
       <Navbar
         onOpenAuthModal={() => setIsAuthModalOpen(true)}
-        onOpenDashboard={handleOpenDashboard}
+        onOpenDashboard={() => setIsDashboardOpen(true)}
+        onLogout={handleLogout}
         isAuthenticated={isAuthenticated}
       />
 
@@ -91,7 +181,7 @@ export const App: React.FC = () => {
         <DiarySection
           isAuthenticated={isAuthenticated}
           onOpenAuthModal={() => setIsAuthModalOpen(true)}
-          onLockDiary={handleLockDiary}
+          onLockDiary={handleLogout}
         />
 
         {/* 7. A Final Birthday Surprise */}
@@ -105,7 +195,7 @@ export const App: React.FC = () => {
       <DiaryAuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
-        onSuccess={handleAuthSuccess}
+        onSuccess={() => setIsDashboardOpen(true)}
       />
 
       {/* Personal Content Management Dashboard */}
