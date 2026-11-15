@@ -1,15 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { Gift, Sparkles, Heart, Star, Cake } from 'lucide-react';
+import { FinalSurpriseContent } from '../../lib/types';
+import { fetchFinalSurprise } from '../../lib/contentService';
 
-export const SurpriseSection: React.FC = () => {
+interface SurpriseSectionProps {
+  refreshTrigger?: number;
+}
+
+export const SurpriseSection: React.FC<SurpriseSectionProps> = ({ refreshTrigger = 0 }) => {
   const [isUnwrapped, setIsUnwrapped] = useState(false);
+  const [surpriseContent, setSurpriseContent] = useState<FinalSurpriseContent | null>(null);
+
+  useEffect(() => {
+    const loadContent = async () => {
+      const data = await fetchFinalSurprise();
+      setSurpriseContent(data);
+    };
+    loadContent();
+  }, [refreshTrigger]);
 
   const triggerCelebration = () => {
     setIsUnwrapped(true);
 
-    // Warm palette confetti
     const colors = ['#D9A6A7', '#9D626B', '#E9D7C5', '#F8F1EB', '#FFD700'];
 
     try {
@@ -41,12 +55,14 @@ export const SurpriseSection: React.FC = () => {
     }
   };
 
+  if (!surpriseContent) return null;
+
   return (
     <section id="surprise" className="py-28 px-6 relative z-10 overflow-hidden">
       <div className="max-w-4xl mx-auto text-center">
         {/* Section Header */}
         <span className="text-xs uppercase tracking-widest font-sans font-semibold text-muted-burgundy">
-          Chapter V
+          The Grand Finale
         </span>
         <h2 className="text-3xl sm:text-5xl font-serif font-normal text-deep-espresso mt-2 mb-4">
           A Birthday Surprise
@@ -108,25 +124,29 @@ export const SurpriseSection: React.FC = () => {
               </div>
 
               <h3 className="font-serif text-3xl sm:text-4xl text-deep-espresso font-normal mb-3">
-                My Birthday Wish For You, Vijeta
+                {surpriseContent.title}
               </h3>
 
               <div className="w-16 h-[1.5px] bg-dusty-rose mx-auto mb-6" />
 
-              <p className="font-serif text-lg sm:text-xl text-deep-espresso/80 leading-relaxed font-light mb-6">
-                "May you always walk through this world knowing how deeply you are adored. 
-                May your smiles be effortless, your worries small, and your life filled with 
-                adventures that make your eyes sparkle. No matter where life leads us, 
-                you will always have someone right beside you, cheering for you in every chapter."
+              {/* Optional Photo */}
+              {surpriseContent.photoUrl && (
+                <div className="mb-6 rounded-2xl overflow-hidden max-h-[420px] bg-champagne-beige/25 shadow-md border border-dusty-rose/30 flex items-center justify-center">
+                  <img src={surpriseContent.photoUrl} alt="Birthday moment" className="w-full max-h-[420px] object-cover object-center" />
+                </div>
+              )}
+
+              <p className="font-serif text-lg sm:text-xl text-deep-espresso/80 leading-relaxed font-light mb-6 whitespace-pre-line">
+                {surpriseContent.message}
               </p>
 
               <p className="font-handwriting text-3xl text-muted-burgundy mb-8">
-                Happy Birthday, My Dream (MD). I love you. ♡
+                {surpriseContent.signOff}
               </p>
 
               <button
                 onClick={triggerCelebration}
-                className="px-6 py-2.5 rounded-full bg-champagne-beige/60 border border-dusty-rose/40 text-xs font-sans text-deep-espresso/80 hover:bg-champagne-beige hover:text-deep-espresso transition-all inline-flex items-center gap-2 shadow-2xs"
+                className="px-6 py-2.5 rounded-full bg-champagne-beige/60 border border-dusty-rose/40 text-xs font-sans text-deep-espresso/80 hover:bg-champagne-beige hover:text-deep-espresso transition-all inline-flex items-center gap-2 shadow-2xs cursor-pointer"
               >
                 <Heart className="w-3.5 h-3.5 fill-muted-burgundy/40 text-muted-burgundy" />
                 <span>Shower with Confetti Again</span>

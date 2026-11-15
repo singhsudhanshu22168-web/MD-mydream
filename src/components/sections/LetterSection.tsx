@@ -1,9 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Sparkles, Mail, Lock } from 'lucide-react';
+import { BirthdayLetter } from '../../lib/types';
+import { fetchBirthdayLetter } from '../../lib/contentService';
 
-export const LetterSection: React.FC = () => {
+interface LetterSectionProps {
+  refreshTrigger?: number;
+}
+
+export const LetterSection: React.FC<LetterSectionProps> = ({ refreshTrigger = 0 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [letter, setLetter] = useState<BirthdayLetter | null>(null);
+
+  useEffect(() => {
+    const loadLetter = async () => {
+      const data = await fetchBirthdayLetter();
+      setLetter(data);
+    };
+    loadLetter();
+  }, [refreshTrigger]);
+
+  if (!letter) return null;
 
   return (
     <section id="letter" className="py-24 px-6 relative z-10 bg-champagne-beige/15 border-y border-dusty-rose/15">
@@ -11,7 +28,7 @@ export const LetterSection: React.FC = () => {
         {/* Section Header */}
         <div className="text-center max-w-xl mx-auto mb-14">
           <span className="text-xs uppercase tracking-widest font-sans font-semibold text-muted-burgundy">
-            Chapter II
+            A Token of My Love
           </span>
           <h2 className="text-3xl sm:text-5xl font-serif font-normal text-deep-espresso mt-2 mb-4">
             A Letter For You
@@ -72,9 +89,9 @@ export const LetterSection: React.FC = () => {
               {/* Decorative top ribbon */}
               <div className="flex items-center justify-between border-b border-dusty-rose/25 pb-6 mb-8">
                 <div>
-                  <span className="font-handwriting text-3xl text-muted-burgundy">Dearest Vijeta,</span>
+                  <span className="font-handwriting text-3xl text-muted-burgundy">{letter.salutation}</span>
                   <p className="text-[11px] uppercase tracking-widest font-sans text-deep-espresso/50 mt-1">
-                    On Your Special Birthday
+                    {letter.subtitle}
                   </p>
                 </div>
                 
@@ -83,46 +100,34 @@ export const LetterSection: React.FC = () => {
                 </div>
               </div>
 
+              {/* Optional Letter Photo */}
+              {letter.photoUrl && (
+                <div className="mb-8 rounded-xl overflow-hidden max-h-[460px] bg-champagne-beige/25 shadow-md border border-dusty-rose/30 flex items-center justify-center">
+                  <img src={letter.photoUrl} alt="Portrait of Vijeta" className="w-full max-h-[460px] object-cover object-top" />
+                </div>
+              )}
+
               {/* Letter Prose */}
               <div className="space-y-6 text-deep-espresso/85 font-serif text-lg sm:text-xl leading-relaxed tracking-wide font-light">
-                <p>
-                  Today isn’t just another calendar date; it is the celebration of the day the world was blessed 
-                  with your kindness, your gentle warmth, and the most radiant soul I have ever known.
-                </p>
-                
-                <p>
-                  Every time life gets noisy, thoughts of you bring an immediate calm. You make the ordinary 
-                  feel poetic, you make simple conversations turn into memories, and you make me want to be 
-                  the best version of myself just to see you smile.
-                </p>
-
-                <p>
-                  I built this little digital realm—<strong className="font-normal text-muted-burgundy">MD (MYDREAM)</strong>—so 
-                  you always have a reminder of how deeply you are cherished, appreciated, and loved. Whenever you feel 
-                  tired or overwhelmed, come back to these pages and remember who you are to me: my dream, my home, 
-                  and my favorite reality.
-                </p>
-
-                <p className="italic text-deep-espresso font-normal">
-                  May this coming year bring you all the peace, laughter, triumphs, and cozy moments your beautiful 
-                  heart deserves.
-                </p>
+                {letter.paragraphs.map((p, idx) => (
+                  <p key={idx}>{p}</p>
+                ))}
               </div>
 
               {/* Sign-off */}
               <div className="mt-12 pt-6 border-t border-dusty-rose/25 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                   <p className="font-sans text-xs tracking-widest uppercase text-deep-espresso/50">
-                    Always & Forever,
+                    {letter.signOffTitle}
                   </p>
                   <p className="font-handwriting text-3xl sm:text-4xl text-muted-burgundy mt-1">
-                    Yours, with all my heart ♡
+                    {letter.signOffName}
                   </p>
                 </div>
 
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="text-xs font-sans text-deep-espresso/50 hover:text-muted-burgundy transition-colors underline underline-offset-4 self-end sm:self-auto"
+                  className="text-xs font-sans text-deep-espresso/50 hover:text-muted-burgundy transition-colors underline underline-offset-4 self-end sm:self-auto cursor-pointer"
                 >
                   Fold letter back
                 </button>

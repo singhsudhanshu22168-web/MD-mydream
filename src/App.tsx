@@ -4,6 +4,7 @@ import { HeroSection } from './components/sections/HeroSection';
 import { MemoriesSection } from './components/sections/MemoriesSection';
 import { FavouriteMemoriesSection } from './components/sections/FavouriteMemoriesSection';
 import { LetterSection } from './components/sections/LetterSection';
+import { OpenWhenSection } from './components/sections/OpenWhenSection';
 import { QuestionsSection } from './components/sections/QuestionsSection';
 import { DiarySection } from './components/sections/DiarySection';
 import { SurpriseSection } from './components/sections/SurpriseSection';
@@ -37,7 +38,6 @@ export const App: React.FC = () => {
             setIsAuthenticated(true);
             setUserEmail(data.session.user.email);
           } else {
-            // Check session storage fallback
             const localSession = sessionStorage.getItem('md_session_auth');
             if (localSession === 'true') {
               setIsAuthenticated(true);
@@ -128,7 +128,7 @@ export const App: React.FC = () => {
       <FloatingElements />
 
       {/* Persistent floating audio toggle */}
-      <AudioPlayer />
+      <AudioPlayer refreshTrigger={refreshTrigger} />
 
       {/* Welcome Toast Animation */}
       <AnimatePresence>
@@ -172,20 +172,23 @@ export const App: React.FC = () => {
         />
 
         {/* 4. A Special Birthday Letter */}
-        <LetterSection />
+        <LetterSection refreshTrigger={refreshTrigger} />
 
-        {/* 5. Questions for MD / Interactive Questions */}
+        {/* 5. Open When... Interactive Envelopes */}
+        <OpenWhenSection refreshTrigger={refreshTrigger} />
+
+        {/* 6. Questions for MD / Interactive Questions */}
         <QuestionsSection />
 
-        {/* 6. MD's Little Diary / Daily Thoughts Journal */}
+        {/* 7. MD's Little Diary / Daily Thoughts Journal */}
         <DiarySection
           isAuthenticated={isAuthenticated}
           onOpenAuthModal={() => setIsAuthModalOpen(true)}
           onLockDiary={handleLogout}
         />
 
-        {/* 7. A Final Birthday Surprise */}
-        <SurpriseSection />
+        {/* 8. A Final Birthday Surprise */}
+        <SurpriseSection refreshTrigger={refreshTrigger} />
       </main>
 
       {/* Global Footer */}

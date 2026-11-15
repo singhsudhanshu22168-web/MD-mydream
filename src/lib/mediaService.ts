@@ -155,11 +155,10 @@ const INITIAL_FAVOURITES: FavouriteMemory[] = [
   {
     id: 'fav-1',
     title: 'The Evening We Decided Forever',
-    description: 'Looking at each other under twilight and realizing there is nowhere else in the universe either of us would rather be. The kind of memory that lives in your chest.',
+    description: 'Looking at each other and realizing there is nowhere else in the universe either of us would rather be. Holding hands and making promises that live forever.',
     memoryDate: 'A Night to Remember',
     mediaUrls: [
-      'https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=800&q=80',
+      '/images/favourite-heart-hands.jpg',
     ],
     isFavourite: true,
     tags: ['Forever', 'Twilight', 'Our Beginning'],
@@ -168,13 +167,13 @@ const INITIAL_FAVOURITES: FavouriteMemory[] = [
   {
     id: 'fav-2',
     title: 'Dancing In The Living Room',
-    description: 'No music needed except the sound of your laugh. You twirled in that oversized sweater, completely unfiltered and radiant.',
+    description: 'No music needed except the sound of your laugh. Cozy sweater vibes, warm tea, completely unfiltered and radiant.',
     memoryDate: 'Soft Sunday',
     mediaUrls: [
-      'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=800&q=80',
+      '/images/favourite-cozy-vibes.jpg',
     ],
     isFavourite: true,
-    tags: ['Unfiltered Joy', 'Silly Smiles'],
+    tags: ['Unfiltered Joy', 'Cozy Vibes'],
     createdAt: new Date().toISOString(),
   },
 ];

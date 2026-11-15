@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Heart, Sparkles, BookOpen, MessageSquare, Image as ImageIcon, Gift, Star, SlidersHorizontal, LogOut } from 'lucide-react';
+import { Menu, X, Heart, Sparkles, BookOpen, MessageSquare, Image as ImageIcon, Gift, Star, SlidersHorizontal, LogOut, Mail } from 'lucide-react';
 
 interface NavbarProps {
   onOpenAuthModal?: () => void;
@@ -25,6 +25,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuthModal, onOpenDashboard
     { name: 'Memories', href: '#memories', icon: ImageIcon },
     { name: 'Favourites', href: '#favourite-memories', icon: Star },
     { name: 'The Letter', href: '#letter', icon: Heart },
+    { name: 'Open When', href: '#open-when', icon: Mail },
     { name: 'Questions', href: '#questions', icon: MessageSquare },
     { name: "Vijeta's Diary", href: '#diary', icon: BookOpen },
     { name: 'Surprise', href: '#surprise', icon: Gift },
@@ -55,12 +56,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuthModal, onOpenDashboard
         </a>
 
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-6">
+        <nav className="hidden lg:flex items-center gap-5">
           {navLinks.map((link) => (
             <a
               key={link.name}
               href={link.href}
-              className="text-sm font-sans text-deep-espresso/80 hover:text-muted-burgundy transition-colors tracking-wide relative group py-1"
+              className="text-xs font-sans text-deep-espresso/80 hover:text-muted-burgundy transition-colors tracking-wide relative group py-1"
             >
               {link.name}
               <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-muted-burgundy transition-all duration-300 group-hover:w-full" />
@@ -70,21 +71,21 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuthModal, onOpenDashboard
           {/* Dashboard Button */}
           <button
             onClick={onOpenDashboard}
-            className="flex items-center gap-1.5 text-xs font-sans px-3.5 py-1.5 rounded-full bg-champagne-beige/60 text-deep-espresso hover:bg-champagne-beige transition-all border border-dusty-rose/40"
+            className="flex items-center gap-1.5 text-xs font-sans px-3 py-1.5 rounded-full bg-champagne-beige/60 text-deep-espresso hover:bg-champagne-beige transition-all border border-dusty-rose/40 cursor-pointer"
             title="Open Content Management Dashboard"
           >
             <SlidersHorizontal className="w-3.5 h-3.5 text-muted-burgundy" />
-            <span>Manage Content</span>
+            <span>Manage</span>
           </button>
 
           {/* Logout / Lock Button */}
           <button
             onClick={onLogout}
-            className="flex items-center gap-1.5 text-xs font-sans px-3.5 py-1.5 rounded-full bg-muted-burgundy text-warm-ivory hover:bg-burgundy-dark transition-all shadow-xs"
+            className="flex items-center gap-1.5 text-xs font-sans px-3 py-1.5 rounded-full bg-muted-burgundy text-warm-ivory hover:bg-burgundy-dark transition-all shadow-xs cursor-pointer"
             title="Lock sanctuary and log out"
           >
             <LogOut className="w-3.5 h-3.5" />
-            <span>Lock Sanctuary</span>
+            <span>Lock</span>
           </button>
         </nav>
 

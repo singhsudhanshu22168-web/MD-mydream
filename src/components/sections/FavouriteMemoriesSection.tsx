@@ -256,11 +256,11 @@ export const FavouriteMemoriesSection: React.FC<FavouriteMemoriesSectionProps> =
                 >
                   {/* Media Preview Header */}
                   {coverImage ? (
-                    <div className="relative aspect-16/10 w-full overflow-hidden bg-champagne-beige/40">
+                    <div className="relative aspect-[4/5] w-full overflow-hidden bg-champagne-beige/40">
                       <img
                         src={coverImage}
                         alt={mem.title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
                       />
                       {mem.mediaUrls.length > 1 && (
                         <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-deep-espresso/60 text-warm-ivory text-[10px] font-sans backdrop-blur-xs flex items-center gap-1">
@@ -371,11 +371,11 @@ export const FavouriteMemoriesSection: React.FC<FavouriteMemoriesSectionProps> =
                 <div className="overflow-y-auto p-6 sm:p-8">
                   {/* Photo Carousel or Video */}
                   {activeMemory.mediaUrls && activeMemory.mediaUrls.length > 0 && (
-                    <div className="relative aspect-16/10 w-full rounded-lg overflow-hidden bg-deep-espresso/10 mb-6">
+                    <div className="relative w-full max-h-[60vh] rounded-lg overflow-hidden bg-deep-espresso/5 mb-6 flex items-center justify-center">
                       <img
                         src={activeMemory.mediaUrls[carouselIndex]}
                         alt="Memory preview"
-                        className="w-full h-full object-cover"
+                        className="w-full max-h-[60vh] object-contain"
                       />
 
                       {activeMemory.mediaUrls.length > 1 && (

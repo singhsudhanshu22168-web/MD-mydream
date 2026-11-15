@@ -1,8 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronDown, Heart } from 'lucide-react';
+import { HeroContent } from '../../lib/types';
+import { fetchHeroContent } from '../../lib/contentService';
 
-export const HeroSection: React.FC = () => {
+interface HeroSectionProps {
+  refreshTrigger?: number;
+}
+
+export const HeroSection: React.FC<HeroSectionProps> = ({ refreshTrigger = 0 }) => {
+  const [content, setContent] = useState<HeroContent | null>(null);
+
+  useEffect(() => {
+    const loadHero = async () => {
+      const data = await fetchHeroContent();
+      setContent(data);
+    };
+    loadHero();
+  }, [refreshTrigger]);
+
+  if (!content) return null;
+
   return (
     <section className="relative min-h-[92vh] flex items-center justify-center pt-24 pb-16 px-6 overflow-hidden">
       <div className="max-w-4xl mx-auto text-center z-10 flex flex-col items-center">
@@ -14,9 +32,7 @@ export const HeroSection: React.FC = () => {
           className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-champagne-beige/50 border border-dusty-rose/30 text-xs font-sans tracking-widest text-muted-burgundy uppercase mb-8 shadow-xs"
         >
           <Heart className="w-3.5 h-3.5 fill-muted-burgundy/40 text-muted-burgundy" />
-          <span>Exclusive Digital Sanctuary</span>
-          <span className="w-1 h-1 rounded-full bg-muted-burgundy" />
-          <span>MD</span>
+          <span>{content.badgeText}</span>
         </motion.div>
 
         {/* Monogram emblem */}
@@ -38,9 +54,9 @@ export const HeroSection: React.FC = () => {
           transition={{ duration: 0.9, delay: 0.4 }}
           className="text-4xl sm:text-6xl md:text-7xl font-serif font-light text-deep-espresso tracking-tight leading-[1.15] mb-6"
         >
-          Happy Birthday, <br className="hidden sm:inline" />
+          {content.headingPrefix} <br className="hidden sm:inline" />
           <span className="italic font-normal text-muted-burgundy relative inline-block">
-            Vijeta
+            {content.headingName}
             <motion.span
               initial={{ width: 0 }}
               animate={{ width: '100%' }}
@@ -57,11 +73,10 @@ export const HeroSection: React.FC = () => {
           transition={{ duration: 0.8, delay: 0.6 }}
           className="text-base sm:text-xl font-sans text-deep-espresso/75 max-w-2xl font-light leading-relaxed mb-10"
         >
-          A private, digital world created only for you — preserving our moments, quiet laughs, 
-          unspoken thoughts, and a diary where only your heart belongs.
+          {content.subtitle}
         </motion.p>
 
-        {/* Action Button */}
+        {/* Action Buttons */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -70,28 +85,28 @@ export const HeroSection: React.FC = () => {
         >
           <a
             href="#memories"
-            className="px-8 py-3.5 rounded-full bg-muted-burgundy text-warm-ivory font-sans text-sm tracking-wide shadow-md hover:bg-burgundy-dark transition-all duration-300 flex items-center gap-2 group"
+            className="px-8 py-3.5 rounded-full bg-muted-burgundy text-warm-ivory font-sans text-sm tracking-wide shadow-md hover:bg-burgundy-dark transition-all duration-300 flex items-center gap-2 group cursor-pointer"
           >
-            <span>Step Into Our Story</span>
+            <span>{content.ctaStoryText}</span>
             <ChevronDown className="w-4 h-4 transition-transform group-hover:translate-y-0.5" />
           </a>
 
           <a
             href="#letter"
-            className="px-7 py-3.5 rounded-full bg-white/70 border border-dusty-rose/40 text-deep-espresso font-sans text-sm hover:border-muted-burgundy hover:bg-white transition-all duration-300"
+            className="px-7 py-3.5 rounded-full bg-white/70 border border-dusty-rose/40 text-deep-espresso font-sans text-sm hover:border-muted-burgundy hover:bg-white transition-all duration-300 cursor-pointer"
           >
-            Read Your Birthday Letter
+            {content.ctaLetterText}
           </a>
         </motion.div>
 
-        {/* Handwritten whisper note */}
+        {/* Handwritten whisper quote */}
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1.4 }}
           className="font-handwriting text-2xl text-muted-burgundy/80 mt-12 transform -rotate-1"
         >
-          "You are My Dream come true..."
+          {content.whisperQuote}
         </motion.p>
 
         {/* Bottom scroll hint */}

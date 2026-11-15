@@ -67,12 +67,12 @@ export const MemoriesSection: React.FC<MemoriesSectionProps> = ({ refreshTrigger
               className="polaroid-card p-4 sm:p-5 pb-6 rounded-sm cursor-pointer group relative flex flex-col justify-between"
             >
               {/* Photo Frame */}
-              <div className="relative aspect-4/3 w-full overflow-hidden bg-champagne-beige/30 rounded-xs mb-4">
+              <div className="relative aspect-[4/5] w-full overflow-hidden bg-champagne-beige/30 rounded-xs mb-4">
                 <img
                   src={item.image}
                   alt={item.title}
                   loading="lazy"
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
                 />
                 
                 {/* Subtle hover icon */}
@@ -129,11 +129,11 @@ export const MemoriesSection: React.FC<MemoriesSectionProps> = ({ refreshTrigger
                 </button>
 
                 <div className="max-h-[85vh] overflow-y-auto">
-                  <div className="relative aspect-16/10 w-full bg-champagne-beige/40">
+                  <div className="relative w-full max-h-[60vh] bg-champagne-beige/40 flex items-center justify-center overflow-hidden">
                     <img
                       src={selectedMemory.image}
                       alt={selectedMemory.title}
-                      className="w-full h-full object-cover"
+                      className="w-full max-h-[60vh] object-contain"
                     />
                   </div>
 

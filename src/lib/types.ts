@@ -1,11 +1,11 @@
-export type MediaType = 'image' | 'video';
+export type MediaType = 'image' | 'video' | 'audio';
 
 export interface MediaItem {
   id: string;
   title: string;
   description?: string;
   caption: string;
-  mediaType: MediaType;
+  mediaType: 'image' | 'video';
   fileUrl: string;
   storagePath?: string;
   category: string;
@@ -43,7 +43,7 @@ export interface MemoryItem {
   caption: string;
   note?: string;
   image: string;
-  rotation?: number; // visual tilt for polaroid styling (-3 to 3 deg)
+  rotation?: number;
 }
 
 export interface QuestionItem {
@@ -65,8 +65,48 @@ export interface DiaryEntry {
   created_at?: string;
 }
 
-export interface UserSession {
-  isAuthenticated: boolean;
-  userEmail?: string;
-  role?: string;
+export interface HeroContent {
+  badgeText: string;
+  headingPrefix: string;
+  headingName: string;
+  subtitle: string;
+  whisperQuote: string;
+  ctaStoryText: string;
+  ctaLetterText: string;
+  backgroundImageUrl?: string;
+}
+
+export interface BirthdayLetter {
+  id?: string;
+  salutation: string;
+  subtitle: string;
+  paragraphs: string[];
+  signOffTitle: string;
+  signOffName: string;
+  photoUrl?: string;
+  updatedAt?: string;
+}
+
+export interface OurMelody {
+  title: string;
+  artist: string;
+  audioUrl: string;
+  volume: number;
+}
+
+export interface OpenWhenLetter {
+  id: string;
+  title: string;
+  subtitle: string;
+  envelopeLabel: string;
+  content: string;
+  photoUrl?: string;
+  orderIndex: number;
+}
+
+export interface FinalSurpriseContent {
+  title: string;
+  message: string;
+  signOff: string;
+  photoUrl?: string;
 }
